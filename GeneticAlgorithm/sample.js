@@ -18,7 +18,7 @@ var sample = (function() {
 
 window.onload = function() {
     var sampleInst = new sample();
-
+    var targetData = "To be or not to be";
 
 
 
@@ -31,6 +31,22 @@ window.onload = function() {
                 retVal += sampleInst.randomChar();
             }
             return retVal;
+        },
+        fitnessCB: function(data) {
+            var fitness = 0;
+            for (var i = 0; i < targetData.length; i++) {
+                if (data.length <= i) {
+                    break;
+                }
+                if (targetData[i] === data[i]) {
+                    fitness++;
+                }
+            }
+            var diff = data.length - targetData.length;
+            if (diff > 0) {
+                fitness -= diff;
+            }
+            return fitness;
         }
     });
 
