@@ -46,7 +46,7 @@ window.onload = function() {
             if (diff > 0) {
                 fitness -= diff;
             }
-            return fitness;
+            return fitness / targetData.length;
         }
     });
 
