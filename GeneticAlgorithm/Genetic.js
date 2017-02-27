@@ -51,6 +51,21 @@ alper.jsLib = (function() {
         }
     };
 
+    jsLib.prototype.proportion = function (curValue, min, max) {
+        if (curValue < min || curValue > max){
+            jsLib.error("curValue error: " + curValue + " min: " + min + " max: " + max);
+        }
+        var diff = max - min;
+        var curDiff = curValue - min;
+        return curDiff * 100 / diff;
+    };
+
+    jsLib.prototype.randomNumber = function(min, max) {
+        var diff = max - min;
+        var randNo = Math.floor(Math.random() * diff) + min;
+        return randNo;
+    };
+
     return jsLib;
 })();
 
@@ -65,6 +80,7 @@ alper.geneticAlgorithm = (function() {
         this.stage = new alper.stage();
 
         this.population = null;
+        this.matingPool = null;
 
         this.jsLib.assertFunction(this.initialPopulationCB, "initial population call back should be function");
         this.jsLib.assertFunction(this.fitnessCB, "fitness call back should be function");
@@ -89,15 +105,36 @@ alper.geneticAlgorithm = (function() {
 
         this.population = pop;
 
+    };
+
+    geneticAlgorithm.prototype.evolve = function(){
+        this.calculateFitness();
+        this.performSelection();
+    };
+
+    geneticAlgorithm.prototype.calculateFitness = function() {
+        var self = this;
+        this.population.iterate(function(candidate) {
+            var fitness = self.fitnessCB(candidate.data);
+            candidate.setFitness(fitness);
+        });
         this.iteration();
     };
 
-    geneticAlgorithm.prototype.selection = function() {
-        this.population.iterate = function(candidate) {
-            var fitness = this.fitnessCB(candidate.data);
-            candidate.setFitness(fitness);
-        };
-        this.iteration();
+    geneticAlgorithm.prototype.performSelection = function(){
+        var maxFitness = 0;
+        this.population.iterate((candidate) => {
+            maxFitness = candidate.fitness > maxFitness ? candidate.fitness : maxFitness;
+        });
+
+        var matingPool = [];
+        this.population.iterate((candidate) => {
+            var ratio = Math.floor(this.jsLib.proportion(candidate.fitness, 0, maxFitness));
+            for (var i = 0; i < ratio; i++){
+                matingPool.push(candidate);
+            }
+        });
+        this.matingPool = matingPool;
     };
 
     return geneticAlgorithm;

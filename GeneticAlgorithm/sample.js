@@ -1,11 +1,9 @@
 var sample = (function() {
     function sample() {
-
+        this.jsLib = new alper.jsLib();
     }
     sample.prototype.randomNumber = function(min, max) {
-        var diff = max - min;
-        var randNo = Math.floor(Math.random() * diff) + min;
-        return randNo;
+        return this.jsLib.randomNumber(min, max);
     };
 
     sample.prototype.randomChar = function() {
@@ -46,9 +44,11 @@ window.onload = function() {
             if (diff > 0) {
                 fitness -= diff;
             }
+            fitness = (fitness > 0) ? fitness : 0;
             return fitness / targetData.length;
         }
     });
 
     genetic.initialize();
+    genetic.evolve();
 };
