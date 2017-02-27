@@ -94,8 +94,10 @@ alper.geneticAlgorithm = (function() {
 
     geneticAlgorithm.prototype.selection = function() {
         this.population.iterate = function(candidate) {
-
+            var fitness = this.fitnessCB(candidate.data);
+            candidate.setFitness(fitness);
         };
+        this.iteration();
     };
 
     return geneticAlgorithm;
@@ -106,6 +108,10 @@ alper.candidate = (function() {
         this.fitness = 0;
         this.data = null;
     }
+
+    candidate.prototype.setFitness = function(fitness) {
+        this.fitness = fitness;
+    };
 
     return candidate;
 })();
