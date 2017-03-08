@@ -119,9 +119,7 @@ alper.geneticAlgorithm = (function() {
         this.stage.displayInfo(this);
 
         if (this.iterationCB) {
-            this.population.iterate(function(candidate) {
-                this.iterationCB(candidate);
-            });
+            this.iterationCB();
         }
     };
 
@@ -133,8 +131,12 @@ alper.geneticAlgorithm = (function() {
         }
 
         this.population = pop;
-        this.calculateFitness();
-        this.iteration();
+        var self = this;
+        this.calculateFitness(function(){
+            self.iteration();
+            self.startEvolve();
+        });
+
     };
 
     geneticAlgorithm.prototype.stop = function(){
@@ -153,35 +155,40 @@ alper.geneticAlgorithm = (function() {
         this.performSelection();
         this.performReproduction();
         this.performMutation();
-        this.calculateFitness();
-        this.generationNumber++;
-        this.iteration();
-
-        if (this.maxFitness >= 99){
-            return;
-        }
-
         var self = this;
-        this.evolveTimeout = setTimeout(function(){
-            self.evolve();
-        });
+        this.calculateFitness(function (){
+            self.generationNumber++;
+            self.iteration();
 
+            if (self.maxFitness >= 99){
+                return;
+            }
+
+            self.evolveTimeout = setTimeout(function(){
+                self.evolve();
+            });
+        });
     };
 
-    geneticAlgorithm.prototype.calculateFitness = function() {
+    geneticAlgorithm.prototype.calculateFitness = function(endCallBack) {
         var self = this;
         var maxFitness = null, maxGenotype = null;
+        var fitnessEndCounter = 0;
         this.population.iterate(function(candidate) {
-            var fitness = self.fitnessCB(candidate.data);
-            candidate.setFitness(fitness);
-            if (maxFitness == null || candidate.fitness > maxFitness){
-                maxFitness = candidate.fitness;
-                maxGenotype = candidate.data;
-            }
+            self.fitnessCB(candidate.data, function(fitness){
+                fitnessEndCounter++;
+                candidate.setFitness(fitness);
+                if (maxFitness == null || candidate.fitness > maxFitness){
+                    maxFitness = candidate.fitness;
+                    maxGenotype = candidate.data;
+                }
+                if (fitnessEndCounter == self.populationsize){
+                    self.maxGenotype = maxGenotype;
+                    self.maxFitness = maxFitness;
+                    setTimeout(endCallBack);
+                }
+            });
         });
-
-        this.maxGenotype = maxGenotype;
-        this.maxFitness = maxFitness;
     };
 
     geneticAlgorithm.prototype.performSelection = function(){
