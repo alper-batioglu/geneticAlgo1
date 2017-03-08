@@ -30,7 +30,7 @@ window.onload = function() {
             }
             return retVal;
         },
-        fitnessCB: function(data) {
+        fitnessCB: function(data, endCallBack) {
             var fitness = 0;
             for (var i = 0; i < targetData.length; i++) {
                 if (data.length <= i) {
@@ -45,7 +45,7 @@ window.onload = function() {
             var diff = Math.abs(data.length - targetData.length);
             fitness -= (diff * 10);
             fitness = (fitness > 0) ? fitness : 0;
-            return fitness / targetData.length;
+            endCallBack(fitness / targetData.length);
         },
         matingCB: function(firstParent, secondParent){
             var first = firstParent.substring(0, firstParent.length / 2);
@@ -82,5 +82,5 @@ window.onload = function() {
 
 
     genetic.initialize();
-    genetic.startEvolve();
+    //genetic.startEvolve();
 };
